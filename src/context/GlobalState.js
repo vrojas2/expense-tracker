@@ -1,38 +1,50 @@
-import React, { createContext, useReducer } from 'react';
-import AppReducer from './AppReducer';
+import React, { createContext, useReducer } from "react";
+import { getCurrentMonthEnEspanol } from "../util/getCurrentDate";
+import { AppReducer } from "./AppReducer";
+import { Data } from "../data/Data";
 
-// Initial state
 const initialState = {
-  transactions: []
-}
+  currentMonth: getCurrentMonthEnEspanol(),
+  transactions: Data,
+};
 
-// Create context
 export const GlobalContext = createContext(initialState);
 
-// Provider component
 export const GlobalProvider = ({ children }) => {
   const [state, dispatch] = useReducer(AppReducer, initialState);
 
-  // Actions
-  function deleteTransaction(id) {
+  function setMonth(month) {
     dispatch({
-      type: 'DELETE_TRANSACTION',
-      payload: id
+      type: "SET_CURRENT_MONTH",
+      payload: month,
     });
   }
 
-  function addTransaction(transaction) {
+  function addTransaction(transaction, currentMonth) {
     dispatch({
-      type: 'ADD_TRANSACTION',
-      payload: transaction
+      type: "ADD_TRANSACTION",
+      payload: { currentMonth, transaction },
     });
   }
 
-  return (<GlobalContext.Provider value={{
-    transactions: state.transactions,
-    deleteTransaction,
-    addTransaction
-  }}>
-    {children}
-  </GlobalContext.Provider>);
-}
+  function deleteTransaction(id, currentMonth) {
+    dispatch({
+      type: "DELETE_TRANSACTION",
+      payload: { id, currentMonth },
+    });
+  }
+
+  return (
+    <GlobalContext.Provider
+      value={{
+        transactions: state.transactions,
+        currentMonth: state.currentMonth,
+        deleteTransaction,
+        addTransaction,
+        setMonth,
+      }}
+    >
+      {children}
+    </GlobalContext.Provider>
+  );
+};
